@@ -1,0 +1,22 @@
+{
+  "name": "open-music-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/permanayogi/open-music-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/permanayogi/open-music-api/issues"
+  },
+  "homepage": "https://github.com/permanayogi/open-music-api#readme",
+  "dependencies": {
+    "@hapi/hapi": "^21.1.0"
+  }
+}
