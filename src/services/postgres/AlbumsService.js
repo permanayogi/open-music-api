@@ -21,7 +21,7 @@ class AlbumsService {
       throw new InvariantError('Album gagal ditambahlan');
     }
 
-    return result.row[0].id;
+    return result.rows[0].id;
   }
 
   async getAlbumById(id) {

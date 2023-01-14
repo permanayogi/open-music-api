@@ -10,7 +10,7 @@ const routes = (handler) => [
     // get albums data by id
     method: 'GET',
     path: '/albums/{id}',
-    handler: (request, h) => handler.getAlbumById(request, h),
+    handler: (request, h) => handler.getAlbumByIdHandler(request, h),
   },
   {
     // edit albums data by id
@@ -21,7 +21,7 @@ const routes = (handler) => [
   {
     // delete albums data by id
     method: 'DELETE',
-    path: '/albums{id}',
+    path: '/albums/{id}',
     handler: (request, h) => handler.deleteAlbumByIdHandler(request, h),
   },
 ];

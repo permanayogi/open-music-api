@@ -58,6 +58,7 @@ const init = async () => {
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
       });
+      console.log(response.stack);
       newResponse.code(500);
       return newResponse;
     }
