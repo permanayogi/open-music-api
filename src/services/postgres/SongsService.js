@@ -18,17 +18,17 @@ class SongsService {
   }) {
     const id = nanoid(16);
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [id, title, year, genre, performer, duration, albumId],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows[0].id) {
-      throw new InvariantError('Lagu gagal ditambahlan');
+      throw new InvariantError('Lagu gagal ditambahkan');
     }
 
-    return result.row[0].id;
+    return result.rows[0].id;
   }
 
   async getSongs() {
@@ -63,7 +63,7 @@ class SongsService {
     },
   ) {
     const query = {
-      text: 'UPDATE albums SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
       values: [title, year, genre, performer, duration, albumId, id],
     };
 

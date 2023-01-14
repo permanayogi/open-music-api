@@ -23,12 +23,22 @@ class AlbumsHandler {
 
   async getAlbumByIdHandler(request) {
     const { id } = request.params;
+    const song = await this._service.getSongInAlbum(id);
     const album = await this._service.getAlbumById(id);
 
     return {
       status: 'success',
       data: {
-        album,
+        album: {
+          id: album.id,
+          name: album.name,
+          year: album.year,
+          songs: song.map((songData) => ({
+            id: songData.id,
+            title: songData.title,
+            performer: songData.performer,
+          })),
+        },
       },
     };
   }
