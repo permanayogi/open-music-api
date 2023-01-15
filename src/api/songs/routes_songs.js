@@ -9,7 +9,7 @@ const routes = (handler) => [
     // get all songs data
     method: 'GET',
     path: '/songs',
-    handler: () => handler.getSongsHandler(),
+    handler: (request, h) => handler.getSongsHandler(request, h),
   },
   {
     // get songs data by id
