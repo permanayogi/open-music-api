@@ -48,13 +48,15 @@ class PlaylistsHandler {
 
   async postPlaylistSongHandler(request, h) {
     this._validator.validatePlaylistSongPayload(request.payload);
+    const action = 'add';
+    const time = new Date().toISOString();
     const { id: credentialId } = request.auth.credentials;
     const { id: playlistId } = request.params;
     const { songId } = request.payload;
     await this._service.verifySongId(songId);
     await this._service.verifyPlaylistAccess(playlistId, credentialId);
-
     await this._service.addPlaylistSong({ playlistId, songId });
+    await this._service.addPlaylistSongActivity(playlistId, songId, credentialId, action, time);
     const response = h.response({
       status: 'success',
       message: 'Lagu berhasil ditambahkan ke playlist',
@@ -88,15 +90,38 @@ class PlaylistsHandler {
 
   async deletePlaylistSongHandler(request) {
     this._validator.validatePlaylistSongPayload(request.payload);
+    const action = 'delete';
+    const time = new Date().toISOString();
     const { id: credentialId } = request.auth.credentials;
     const { id: playlistId } = request.params;
     const { songId } = request.payload;
     await this._service.verifyPlaylistAccess(playlistId, credentialId);
     await this._service.deletePlaylistSongById({ playlistId, songId });
-
+    await this._service.addPlaylistSongActivity(playlistId, songId, credentialId, action, time);
     return {
       status: 'success',
       message: 'Lagu berhasil dihapus',
+    };
+  }
+
+  async getPlaylistSongActivitiesHandler(request) {
+    const { id: playlistId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    await this._service.verifyPlaylistAccess(playlistId, credentialId);
+    const playlistSongActivities = await this._service.getPlaylistSongActivities(playlistId);
+
+    return {
+      status: 'success',
+      data: {
+        playlistId: playlistSongActivities[0].playlist_id,
+        activities: !playlistSongActivities[0].playlist_id ? []
+          : playlistSongActivities.map((activitiesData) => ({
+            username: activitiesData.username,
+            title: activitiesData.title,
+            action: activitiesData.action,
+            time: activitiesData.time,
+          })),
+      },
     };
   }
 }
