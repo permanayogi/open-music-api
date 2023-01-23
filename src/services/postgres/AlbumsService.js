@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
-const NotFoundError = require('../../exceptions/NotFounError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
   constructor() {
@@ -9,7 +9,7 @@ class AlbumsService {
   }
 
   async addAlbum({ name, year }) {
-    const id = nanoid(16);
+    const id = `album-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO albums VALUES($1, $2, $3) RETURNING id',
       values: [id, name, year],
@@ -26,7 +26,8 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: `SELECT albums.id, albums.name, albums.year, songs.id AS song_id, songs.title, songs.performer FROM albums 
+      text: `SELECT albums.id, albums.name, albums.year, songs.id AS song_id, songs.title, songs.performer
+      FROM albums 
       LEFT JOIN songs ON songs.album_id = albums.id 
       WHERE albums.id = $1`,
       values: [id],
