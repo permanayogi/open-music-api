@@ -37,7 +37,9 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: 'SELECT * FROM albums WHERE id = $1',
+      text: `SELECT albums.id, albums.name, albums.year, songs.id AS song_id, songs.title, songs.performer FROM albums 
+      LEFT JOIN songs ON songs.album_id = albums.id 
+      WHERE albums.id = $1`,
       values: [id],
     };
 
@@ -47,7 +49,7 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
-    return rows[0];
+    return rows;
   }
 
   async editAlbumById(id, { name, year }) {
