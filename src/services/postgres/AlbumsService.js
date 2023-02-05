@@ -80,6 +80,46 @@ class AlbumsService {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
   }
+
+  async addLikeOrDislikeAlbumById(userId, albumId) {
+    const id = nanoid(16);
+    let message;
+    await this.getAlbumById(albumId);
+    console.log(albumId);
+    const query = {
+      text: 'SELECT * FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
+      values: [userId, albumId],
+    };
+
+    const check = await this._pool.query(query);
+
+    if (check.rowCount === 0) {
+      const insert = {
+        text: 'INSERT INTO user_album_likes VALUES($1, $2, $3)',
+        values: [id, userId, albumId],
+      };
+      this._pool.query(insert);
+      message = 'Berhasil like album';
+    } else {
+      const _delete = {
+        text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
+        values: [userId, albumId],
+      };
+      this._pool.query(_delete);
+      message = 'Berhasil dislike album';
+    }
+    return message;
+  }
+
+  async getAlbumLike(albumId) {
+    const query = {
+      text: 'SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1',
+      values: [albumId],
+    };
+
+    const { rows } = await this._pool.query(query);
+    return rows[0].count;
+  }
 }
 
 module.exports = AlbumsService;

@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 class AlbumsHandler {
   constructor(service, validator) {
     this._service = service;
@@ -62,6 +63,29 @@ class AlbumsHandler {
     return {
       status: 'success',
       message: 'Album berhasil dihapus',
+    };
+  }
+
+  async postLikeAlbumHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    const albumLike = await this._service.addLikeOrDislikeAlbumById(credentialId, id);
+    const response = h.response({
+      status: 'success',
+      message: albumLike,
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getLikeAlbumHandler(request) {
+    const { id } = request.params;
+    const albumLikes = await this._service.getAlbumLike(id);
+    return {
+      status: 'success',
+      data: {
+        likes: parseInt(albumLikes),
+      },
     };
   }
 }
