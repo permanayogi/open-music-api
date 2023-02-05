@@ -31,6 +31,7 @@ class AlbumsHandler {
           id: album[0].id,
           name: album[0].name,
           year: album[0].year,
+          coverUrl: album[0].cover,
           songs: !album[0].song_id ? [] : album.map((albumData) => ({
             id: albumData.song_id,
             title: albumData.name,

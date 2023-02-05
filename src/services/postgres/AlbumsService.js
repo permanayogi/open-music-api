@@ -26,7 +26,7 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: `SELECT albums.id, albums.name, albums.year, songs.id AS song_id, songs.title, songs.performer
+      text: `SELECT albums.id, albums.name, albums.year, albums.cover, songs.id AS song_id, songs.title, songs.performer
       FROM albums 
       LEFT JOIN songs ON songs.album_id = albums.id 
       WHERE albums.id = $1`,
@@ -40,6 +40,19 @@ class AlbumsService {
     }
 
     return rows;
+  }
+
+  async updateAlbumCover(id, url) {
+    const query = {
+      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+      values: [url, id],
+    };
+
+    const { rowCount } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
+    }
   }
 
   async editAlbumById(id, { name, year }) {
