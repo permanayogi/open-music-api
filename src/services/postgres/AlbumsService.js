@@ -1,11 +1,13 @@
+/* eslint-disable radix */
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cachceService = cacheService;
   }
 
   async addAlbum({ name, year }) {
@@ -85,7 +87,6 @@ class AlbumsService {
     const id = nanoid(16);
     let message;
     await this.getAlbumById(albumId);
-    console.log(albumId);
     const query = {
       text: 'SELECT * FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
       values: [userId, albumId],
@@ -100,6 +101,7 @@ class AlbumsService {
       };
       this._pool.query(insert);
       message = 'Berhasil like album';
+      await this._cachceService.delete(`albumlike:${albumId}`);
     } else {
       const _delete = {
         text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
@@ -107,18 +109,29 @@ class AlbumsService {
       };
       this._pool.query(_delete);
       message = 'Berhasil dislike album';
+      await this._cachceService.delete(`albumlike:${albumId}`);
     }
     return message;
   }
 
   async getAlbumLike(albumId) {
-    const query = {
-      text: 'SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1',
-      values: [albumId],
-    };
+    try {
+      const likeCache = await this._cachceService.get(`albumlike:${albumId}`);
+      const result = JSON.parse(likeCache);
+      const header = 'cache';
+      return { result, header };
+    } catch (error) {
+      const query = {
+        text: 'SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1',
+        values: [albumId],
+      };
 
-    const { rows } = await this._pool.query(query);
-    return rows[0].count;
+      const { rows } = await this._pool.query(query);
+      const result = rows[0].count;
+      await this._cachceService.set(`albumlike:${albumId}`, JSON.stringify(parseInt(result)));
+      const header = 'db';
+      return { result, header };
+    }
   }
 }
 
